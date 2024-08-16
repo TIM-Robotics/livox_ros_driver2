@@ -52,7 +52,7 @@ class DriverNode final : public ros::NodeHandle {
 };
 
 #elif defined BUILDING_ROS2
-class DriverNode final : public rclcpp::Node {
+class DriverNode final : public tim_common_utils::LifecycleNode {
  public:
   explicit DriverNode(const rclcpp::NodeOptions& options);
   DriverNode(const DriverNode &) = delete;
@@ -60,6 +60,12 @@ class DriverNode final : public rclcpp::Node {
   DriverNode &operator=(const DriverNode &) = delete;
 
   DriverNode& GetNode() noexcept;
+
+ protected:
+  tim_common_utils::LifecycleNode::CallbackReturn on_configure(const rclcpp_lifecycle::State & state);
+  tim_common_utils::LifecycleNode::CallbackReturn on_activate(const rclcpp_lifecycle::State & state);
+  tim_common_utils::LifecycleNode::CallbackReturn on_deactivate(const rclcpp_lifecycle::State & state);
+  tim_common_utils::LifecycleNode::CallbackReturn on_cleanup(const rclcpp_lifecycle::State & state);
 
  private:
   void PointCloudDataPollThread();

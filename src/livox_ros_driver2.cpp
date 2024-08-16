@@ -116,10 +116,11 @@ int main(int argc, char **argv) {
 namespace livox_ros
 {
 DriverNode::DriverNode(const rclcpp::NodeOptions & node_options)
-: Node("livox_driver_node", node_options)
+: tim_common_utils::LifecycleNode("livox_driver_node", "", node_options)
 {
   DRIVER_INFO(*this, "Livox Ros Driver2 Version: %s", LIVOX_ROS_DRIVER2_VERSION_STRING);
-
+}
+tim_common_utils::LifecycleNode::CallbackReturn DriverNode::on_configure(const rclcpp_lifecycle::State & /*state*/) {
   /** Init default system parameter */
   int xfer_format = kPointCloud2Msg;
   int multi_topic = 0;
@@ -128,22 +129,15 @@ DriverNode::DriverNode(const rclcpp::NodeOptions & node_options)
   int output_type = kOutputToRos;
   std::string frame_id;
 
-  this->declare_parameter("xfer_format", xfer_format);
-  this->declare_parameter("multi_topic", 0);
-  this->declare_parameter("data_src", data_src);
-  this->declare_parameter("publish_freq", 10.0);
-  this->declare_parameter("output_data_type", output_type);
-  this->declare_parameter("frame_id", "frame_default");
-  this->declare_parameter("user_config_path", "path_default");
-  this->declare_parameter("cmdline_input_bd_code", "000000000000001");
-  this->declare_parameter("lvx_file_path", "/home/livox/livox_test.lvx");
-
-  this->get_parameter("xfer_format", xfer_format);
-  this->get_parameter("multi_topic", multi_topic);
-  this->get_parameter("data_src", data_src);
-  this->get_parameter("publish_freq", publish_freq);
-  this->get_parameter("output_data_type", output_type);
-  this->get_parameter("frame_id", frame_id);
+  DeclareAndGetParameter<int>("xfer_format", xfer_format, xfer_format);
+  DeclareAndGetParameter<int>("multi_topic", multi_topic, multi_topic);
+  DeclareAndGetParameter<int>("data_src", data_src, data_src);
+  DeclareAndGetParameter<double>("publish_freq", publish_freq, publish_freq);
+  DeclareAndGetParameter<int>("output_data_type", output_type, output_type);
+  DeclareAndGetParameter<std::string>("frame_id", "frame_default", frame_id);
+  if (!this->has_parameter("user_config_path")) this->declare_parameter<std::string>("user_config_path", "path_default");
+  if (!this->has_parameter("cmdline_input_bd_code")) this->declare_parameter<std::string>("cmdline_input_bd_code", "000000000000001");
+  if (!this->has_parameter("lvx_file_path")) this->declare_parameter<std::string>("lvx_file_path", "/home/livox/livox_test.lvx");
 
   if (publish_freq > 100.0) {
     publish_freq = 100.0;
@@ -180,11 +174,25 @@ DriverNode::DriverNode(const rclcpp::NodeOptions & node_options)
   } else {
     DRIVER_ERROR(*this, "Invalid data src (%d), please check the launch file", data_src);
   }
-
-  pointclouddata_poll_thread_ = std::make_shared<std::thread>(&DriverNode::PointCloudDataPollThread, this);
-  imudata_poll_thread_ = std::make_shared<std::thread>(&DriverNode::ImuDataPollThread, this);
+  return tim_common_utils::LifecycleNode::CallbackReturn::SUCCESS;
 }
 
+tim_common_utils::LifecycleNode::CallbackReturn DriverNode::on_activate(const rclcpp_lifecycle::State & /*state*/) {
+  pointclouddata_poll_thread_ = std::make_shared<std::thread>(&DriverNode::PointCloudDataPollThread, this);
+  imudata_poll_thread_ = std::make_shared<std::thread>(&DriverNode::ImuDataPollThread, this);
+  return tim_common_utils::LifecycleNode::CallbackReturn::SUCCESS;
+}
+
+tim_common_utils::LifecycleNode::CallbackReturn DriverNode::on_deactivate(const rclcpp_lifecycle::State & /*state*/) {
+  pointclouddata_poll_thread_.reset();
+  imudata_poll_thread_.reset();
+  return tim_common_utils::LifecycleNode::CallbackReturn::SUCCESS;
+}
+
+tim_common_utils::LifecycleNode::CallbackReturn DriverNode::on_cleanup(const rclcpp_lifecycle::State & /*state*/) {
+  lddc_ptr_.reset();
+  return tim_common_utils::LifecycleNode::CallbackReturn::SUCCESS;
+}
 }  // namespace livox_ros
 
 #include <rclcpp_components/register_node_macro.hpp>
