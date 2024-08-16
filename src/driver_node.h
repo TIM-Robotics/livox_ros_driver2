@@ -62,10 +62,10 @@ class DriverNode final : public tim_common_utils::LifecycleNode {
   DriverNode& GetNode() noexcept;
 
  protected:
-  tim_common_utils::LifecycleNode::CallbackReturn on_configure(const rclcpp_lifecycle::State & state);
-  tim_common_utils::LifecycleNode::CallbackReturn on_activate(const rclcpp_lifecycle::State & state);
-  tim_common_utils::LifecycleNode::CallbackReturn on_deactivate(const rclcpp_lifecycle::State & state);
-  tim_common_utils::LifecycleNode::CallbackReturn on_cleanup(const rclcpp_lifecycle::State & state);
+  tim_common_utils::LifecycleNode::CallbackReturn on_configure(const rclcpp_lifecycle::State & state) override;
+  tim_common_utils::LifecycleNode::CallbackReturn on_activate(const rclcpp_lifecycle::State & state) override;
+  tim_common_utils::LifecycleNode::CallbackReturn on_deactivate(const rclcpp_lifecycle::State & state) override;
+  tim_common_utils::LifecycleNode::CallbackReturn on_cleanup(const rclcpp_lifecycle::State & state) override;
 
  private:
   void PointCloudDataPollThread();
