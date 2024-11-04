@@ -76,6 +76,14 @@ class DriverNode final : public tim_common_utils::LifecycleNode {
   std::shared_ptr<std::thread> imudata_poll_thread_;
   std::shared_future<void> future_;
   std::promise<void> exit_signal_;
+
+  /** Init default system parameter */
+  int xfer_format_;
+  int multi_topic_ ;
+  int data_src_;
+  double publish_freq_; /* Hz */
+  int output_type_;
+  std::string frame_id_;
 };
 #endif
 
