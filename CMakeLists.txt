@@ -315,10 +315,16 @@ else(ROS_EDITION STREQUAL "ROS2")
     ${APR_LIBRARIES}
   )
 
-  rclcpp_components_register_node(${PROJECT_NAME}
-    PLUGIN "livox_ros::DriverNode"
-    EXECUTABLE ${PROJECT_NAME}_node
+
+  add_executable (${PROJECT_NAME}_node
+    src/main.cpp
   )
+  target_link_libraries(${PROJECT_NAME}_node ${PROJECT_NAME})
+
+  # rclcpp_components_register_node(${PROJECT_NAME}
+  #   PLUGIN "livox_ros::DriverNode"
+  #   EXECUTABLE ${PROJECT_NAME}_node
+  # )
 
   if(BUILD_TESTING)
     find_package(ament_lint_auto REQUIRED)
