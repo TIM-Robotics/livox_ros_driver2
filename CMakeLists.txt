@@ -337,6 +337,11 @@ else(ROS_EDITION STREQUAL "ROS2")
     ament_lint_auto_find_test_dependencies()
   endif()
 
+  install(TARGETS
+    ${PROJECT_NAME}_node
+    RUNTIME DESTINATION lib/${PROJECT_NAME}
+  )
+
   ament_auto_package(INSTALL_TO_SHARE
     config
     launch_ROS2
