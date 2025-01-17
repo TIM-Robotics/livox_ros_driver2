@@ -260,6 +260,7 @@ typedef struct {
 
 typedef struct {
   uint32_t handle;
+  std::string name_space;
   int8_t pcl_data_type;
   int8_t pattern_mode;
   int32_t blind_spot_set;
